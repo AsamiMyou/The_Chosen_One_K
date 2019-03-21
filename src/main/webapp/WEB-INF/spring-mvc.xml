@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd">  
+  
+     <!-- 添加注解驱动 -->    
+    <mvc:annotation-driven />  
+    <mvc:default-servlet-handler/>  
+      
+    <!-- 设置使用注解的类所在的包 -->  
+    <context:component-scan base-package="com.theChosenOne.*.Controller" />  
+      
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置-->  
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">  
+        <!-- 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 -->  
+        <property name="prefix" value="/WEB-INF/jsp/" />  
+        <property name="suffix" value=".jsp" />  
+    </bean>  
+      
+    <!-- SpringMVC上传文件时，需要配置MultipartResolver处理器-->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">    
+        <!-- 默认编码 -->  
+        <property name="defaultEncoding" value="utf-8" />    
+        <!-- 文件大小最大值 -->  
+        <property name="maxUploadSize" value="10485760000" />    
+        <!-- 内存中的最大值 -->  
+        <property name="maxInMemorySize" value="40960" />    
+    </bean>   
+  <!-- 拦截器配置，拦截顺序：先执行后定义的，排在第一位的最后执行。-->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<!-- 先匹配所有路径，然后排除不需要检查的路径 -->
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/index.jsp"/>
+            <mvc:exclude-mapping path="/attach/**"/>
+            <mvc:exclude-mapping path="/js/**"/>
+            <mvc:exclude-mapping path="/css/**"/>
+            <mvc:exclude-mapping path="/images/**"/>
+            <mvc:exclude-mapping path="/mainJsp/**"/>
+            <mvc:exclude-mapping path="/Login/**"/>
+            <mvc:exclude-mapping path="/register/**"/>
+            <mvc:exclude-mapping path="/User/getStuCom"/>
+            <mvc:exclude-mapping path="/User/searchStu"/>
+            <mvc:exclude-mapping path="/User/searchCom"/>
+            <mvc:exclude-mapping path="/User/keywordSearch"/>
+            <mvc:exclude-mapping path="/User/searchSKey"/>
+            <mvc:exclude-mapping path="/User/searchCKey"/>
+            <mvc:exclude-mapping path="/User/toStu"/>
+            <mvc:exclude-mapping path="/User/toCom"/>
+            <mvc:exclude-mapping path="/User/seeUserInfo"/>
+            <mvc:exclude-mapping path="/Message/returnStuMessage"/>
+            <mvc:exclude-mapping path="/Message/toSeeMessage"/>
+            <mvc:exclude-mapping path="/Message/returnComMessage"/>
+            <mvc:exclude-mapping path="/Message/returnUserMessage"/>
+			<bean class="com.theChosenOne.Login.Interceptor.LoginInterceptor" />
+		</mvc:interceptor>
+		
+		<mvc:interceptor>
+			<!-- 先匹配所有路径，然后排除不需要检查的路径 -->
+            <mvc:mapping path="/Admin/**"/>
+			<bean class="com.theChosenOne.Login.Interceptor.AdminInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	<!-- 处理请求时返回json字符串的中文乱码问题 -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+</beans>  

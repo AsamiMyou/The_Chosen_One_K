@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.theChosenOne.Message.Dao.MessageDao">
+
+	<resultMap type="com.theChosenOne.Message.Entity.MessageEntity" id="MessageEntity">
+		<id column="ID" property="id"/>
+		<result column="U_ID" property="userId"/>
+		<result column="E_TITLE" property="title"/>
+		<result column="E_CONTENT" property="content"/>
+		<result column="E_STATUS" property="status"/>
+		<result column="E_SEETIME" property="seeTime"/>
+		<result column="E_DELFLAG" property="delFlag"/>
+		<result column="U_NAME" property="creator"/>
+		<result column="E_TYPE" property="messageType"/>
+		<result column="E_CREATETIME" property="createTime"/>
+	</resultMap>
+
+	<sql id="messageColumns">
+		m.ID,
+		m.U_ID,
+		m.E_TITLE,
+		m.E_CONTENT,
+		m.E_STATUS,
+		m.E_SEETIME,
+		m.E_DELFLAG,
+		m.U_NAME,
+		m.E_TYPE,
+		m.E_CREATETIME
+	</sql>
+	
+	<select id="findAllMessage" resultMap="MessageEntity">
+		SELECT
+		<include refid="messageColumns" />
+		FROM XAWL_EDITOR m WHERE m.E_DELFLAG = '0' ORDER BY m.E_CREATETIME DESC
+	</select>
+	
+	<select id="findMessageById" resultMap="MessageEntity">
+		SELECT
+		<include refid="messageColumns" />
+		FROM XAWL_EDITOR m WHERE m.ID = #{0}
+	</select>
+	
+	<select id="findMessageByUid" resultMap="MessageEntity">
+		SELECT
+		<include refid="messageColumns" />
+		FROM XAWL_EDITOR m WHERE m.E_DELFLAG = '0' AND m.E_STATUS = '1' AND m.U_ID = #{0} 
+		ORDER BY m.E_CREATETIME DESC
+	</select>
+	
+	<select id="findMessageByCreator" resultMap="MessageEntity">
+		SELECT
+		<include refid="messageColumns" />
+		FROM XAWL_EDITOR m WHERE m.E_DELFLAG = '0' AND m.U_ID = #{0}
+		ORDER BY m.E_CREATETIME DESC
+	</select>
+	
+	<select id="findMessageByType" resultMap="MessageEntity">
+		SELECT
+		<include refid="messageColumns" />
+		FROM XAWL_EDITOR m WHERE m.E_DELFLAG = '0' AND m.E_TYPE = #{0} AND m.E_STATUS = '1' 
+		ORDER BY m.E_CREATETIME DESC
+	</select>
+	
+	
+	
+	<insert id="addMessage" >
+		INSERT INTO XAWL_EDITOR(
+			ID,
+			U_ID,
+			E_TITLE,
+			E_CONTENT,
+			E_STATUS,
+			E_SEETIME,
+			E_DELFLAG,
+			U_NAME,
+			E_TYPE,
+			E_CREATETIME
+		) VALUES (
+			#{id},
+			#{userId},
+			#{title},
+			#{content},
+			#{status},
+			#{seeTime},
+			#{delFlag},
+			#{creator},
+			#{messageType},
+			#{createTime}
+		)
+	</insert>
+	
+	<!--修改信息表-->
+	<update id="modifyMessage">
+		UPDATE XAWL_EDITOR SET 	
+			E_CONTENT = #{content},
+			E_STATUS = '0'
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="passMessage">
+		UPDATE XAWL_EDITOR SET 	
+			E_STATUS = '1'
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="refuseMessage">
+		UPDATE XAWL_EDITOR SET 	
+			E_STATUS = '2'
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="delMessage">
+		UPDATE XAWL_EDITOR SET 	
+			E_DELFLAG = '1'
+		WHERE ID = #{id}
+	</update>
+
+	<update id="addSeeTime">
+		UPDATE XAWL_EDITOR SET 	
+			E_SEETIME = E_SEETIME + 1
+		WHERE ID = #{id}
+	</update>
+	
+</mapper>

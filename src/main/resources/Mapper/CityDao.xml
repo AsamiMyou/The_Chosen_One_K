@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.theChosenOne.City.Dao.CityDao">
+
+	<sql id="cityColumns">
+		c.ID,
+		c.CITY_NAME,
+		c.CREATE_TIME,
+		c.DEL_FLAG
+	</sql>
+	
+	
+	<select id="findAll" resultMap="CityEntity">
+		SELECT
+		<include refid="cityColumns" />
+		FROM XAWL_CITY c WHERE c.DEL_FLAG = '0'
+	</select>
+	
+	<select id="returnCitysList" resultType="String">
+		SELECT
+		c.CITY_NAME
+		FROM XAWL_CITY c WHERE c.DEL_FLAG = '0'
+	</select>
+	
+	<select id="findByName">
+		SELECT COUNT(*) FROM XAWL_CITY C WHERE C.CITY_NAME = #{0} AND C.DEL_FLAG = '0'
+	</select>
+	
+	<insert id="addCity" >
+		INSERT INTO XAWL_CITY(
+			ID,
+		CITY_NAME,
+		CREATE_TIME,
+		DEL_FLAG
+		) VALUES (
+			#{id},
+			#{cityName},
+			#{createTime},
+			#{delFlag}
+		)
+	</insert>
+	<!--修改城市表-->
+	<update id="modifyCity">
+		UPDATE XAWL_CITY SET 	
+			CITY_NAME = #{cityName},
+			CREATE_TIME = #{CREATE_TIME}
+		WHERE ID = #{id}
+	</update>
+	<!--删除城市表-->
+	<update id="delCity">
+		UPDATE XAWL_CITY SET 	
+			DEL_FLAG = '1'
+		WHERE ID = #{0}
+	</update>
+
+
+	<resultMap type="com.theChosenOne.City.Entity.CityEntity" id="CityEntity">
+		
+		<id column="ID" property="id"/>
+		<result column="CITY_NAME" property="cityName"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		
+	</resultMap>
+</mapper>

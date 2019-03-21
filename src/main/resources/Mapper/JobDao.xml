@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.theChosenOne.Job.Dao.JobDao">
+
+	<sql id="JobColumns">
+		j.ID,
+		j.JOB_NAME,
+		j.CREATE_TIME,
+		j.DEL_FLAG
+	</sql>
+	
+	
+	<select id="findAll" resultMap="jobEntity">
+		SELECT
+		<include refid="JobColumns" />
+		FROM XAWL_JOB j WHERE j.DEL_FLAG = '0'
+	</select>
+	
+	<select id="returnJobsList" resultType="String">
+		SELECT
+		j.JOB_NAME
+		FROM XAWL_JOB j WHERE j.DEL_FLAG = '0'
+	</select>
+	
+	
+	<select id="findByName">
+		SELECT COUNT(*) FROM XAWL_JOB J WHERE J.JOB_NAME = #{0} AND J.DEL_FLAG = '0'
+	</select>
+	
+	
+	<insert id="addJob" >
+		INSERT INTO XAWL_JOB(
+			ID,
+		JOB_NAME,
+		CREATE_TIME,
+		DEL_FLAG
+		) VALUES (
+			#{id},
+			#{jobName},
+			#{createTime},
+			#{delFlag}
+		)
+	</insert>
+	<!--修改城市表-->
+	<update id="modifyJob">
+		UPDATE XAWL_JOB SET 	
+			JOB_NAME = #{jobName},
+			CREATE_TIME = #{CREATE_TIME}
+		WHERE ID = #{id}
+	</update>
+	<!--删除城市表-->
+	<update id="delJob">
+		UPDATE XAWL_JOB SET 	
+			DEL_FLAG = '1'
+		WHERE ID = #{0}
+	</update>
+
+
+	<resultMap type="com.theChosenOne.Job.Entity.JobEntity" id="jobEntity">
+		
+		<id column="ID" property="id"/>
+		<result column="JOB_NAME" property="jobName"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		
+	</resultMap>
+</mapper>

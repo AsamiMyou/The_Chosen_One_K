@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.theChosenOne.Majoy.Dao.MajoyDao">
+
+	<sql id="majoyColumns">
+		m.ID,
+		m.MAJOY_NAME,
+		m.CREATE_TIME,
+		m.DEL_FLAG
+	</sql>
+	
+	<select id="returnMajoysList" resultType="String">
+		SELECT
+		m.MAJOY_NAME
+		FROM XAWL_MAJOY m WHERE m.DEL_FLAG = '0'
+	</select>
+	
+	<select id="findAll" resultMap="majoyEntity">
+		SELECT
+		<include refid="majoyColumns" />
+		FROM XAWL_MAJOY m WHERE m.DEL_FLAG = '0'
+	</select>
+	
+	
+	<select id="findByName">
+		SELECT COUNT(*) FROM XAWL_MAJOY M WHERE M.MAJOY_NAME = #{0} AND M.DEL_FLAG = '0'
+	</select>
+	
+	<insert id="addMajoy" >
+		INSERT INTO XAWL_MAJOY(
+			ID,
+		MAJOY_NAME,
+		CREATE_TIME,
+		DEL_FLAG
+		) VALUES (
+			#{id},
+			#{majoyName},
+			#{createTime},
+			#{delFlag}
+		)
+	</insert>
+	<!--修改城市表-->
+	<update id="modifyMajoy">
+		UPDATE XAWL_MAJOY SET 	
+			MAJOY_NAME = #{majoyName},
+			CREATE_TIME = #{CREATE_TIME}
+		WHERE ID = #{id}
+	</update>
+	<!--删除城市表-->
+	<update id="delMajoy">
+		UPDATE XAWL_MAJOY SET 	
+			DEL_FLAG = '1'
+		WHERE ID = #{0}
+	</update>
+
+
+	<resultMap type="com.theChosenOne.Majoy.Entity.MajoyEntity" id="majoyEntity">
+		
+		<id column="ID" property="id"/>
+		<result column="MAJOY_NAME" property="majoyName"/>
+		<result column="CREATE_TIME" property="createTime"/>
+		<result column="DEL_FLAG" property="delFlag"/>
+		
+	</resultMap>
+</mapper>

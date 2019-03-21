@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.theChosenOne.User.Dao.UserDao">
+
+	<sql id="UserColumns">
+		U.ID ,
+		U.U_ACCOUNT ,
+		U.U_PASSWORD ,
+		U.U_PHONE ,
+		U.U_EMAIL ,
+		U.U_TYPE ,
+		U.U_CREATETIME ,
+		U.U_DELFLAG ,
+		U.U_STATUS ,
+		U.U_AVATAR
+	</sql>
+
+	<sql id="StuColumns">
+		S.ID ,
+		S.U_ID ,
+		S.S_NAME ,
+		S.S_SEX ,
+		S.S_BIRTHDAY ,
+		S.S_PERSON_ID ,
+		S.S_MAJOR ,
+		S.S_LEVEL ,
+		S.S_STATUS ,
+		S.S_JOB_CITY ,
+		S.S_JOB_TYPE ,
+		S.S_MONEY ,
+		S.S_IMG_URL ,
+		S.S_CREATETIME ,
+		S.S_DELFLAG
+	</sql>
+
+	<sql id="ComColumns">
+		C.ID ,
+		C.U_ID ,
+		C.C_NAME ,
+		C.C_PERSON ,
+		C.C_PERSON_ID ,
+		C.C_MONEY ,
+		C.C_ADDRESS ,
+		C.C_BANK_ADDRESS ,
+		C.C_BANK_ACCOUNT ,
+		C.C_COM_NUM ,
+		C.C_COM_DATE ,
+		C.C_IMG_URL ,
+		C.C_CREATETIME ,
+		C.C_DELFLAG ,
+		C_MAIN_BUSSINESS
+	</sql>
+
+	<select id="login" resultMap="UserEntity">
+		SELECT <include refid="UserColumns" /> FROM XAWL_USER U WHERE U.U_DELFLAG = '0' AND 
+		U.U_ACCOUNT = #{0} AND
+		U.U_PASSWORD =#{1}
+	</select>
+	
+	
+
+	<select id="findAllUser" resultMap="UserEntity">
+		SELECT
+		<include refid="UserColumns" />
+		FROM XAWL_USER U WHERE U.U_DELFLAG = '0' AND U.U_TYPE != '0'
+	</select>
+	
+	<select id="findUserById" resultMap="UserEntity">
+		SELECT
+		<include refid="UserColumns" />
+		FROM XAWL_USER U WHERE U.U_DELFLAG = '0' AND U.ID = #{0}
+	</select>
+
+	<select id="findStuByKey" resultMap="StuEntity">
+		SELECT
+		<include refid="StuColumns" />
+		FROM XAWL_STU S WHERE S.S_DELFLAG = '0' AND 
+				S.U_ID IN ( SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1' ) 
+		AND 
+		(
+			S.S_NAME LIKE '%${keyword}%' OR S.S_MAJOR LIKE '%${keyword}%'
+		OR S.S_JOB_CITY LIKE '%${keyword}%' OR S.S_JOB_TYPE LIKE '%${keyword}%'
+		)
+		ORDER BY S_CREATETIME DESC
+	</select>
+	
+	<select id="findComByKey" resultMap="ComEntity">
+		SELECT
+		<include refid="ComColumns" /> 
+		FROM XAWL_COM C WHERE C.C_DELFLAG = '0' AND 
+				C.U_ID IN (SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1' ) 
+		AND 
+		(
+			C.C_NAME LIKE '%${keyword}%' OR C.C_ADDRESS LIKE '%${keyword}%' OR C.C_MAIN_BUSSINESS LIKE '%${keyword}%'
+		)
+		ORDER BY C_CREATETIME DESC
+	</select>
+	
+	<select id="findStuByVo" resultMap="StuEntity">
+		SELECT
+		<include refid="StuColumns" />
+		FROM XAWL_STU S WHERE S.S_DELFLAG = '0' AND S.U_ID IN (
+			SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1'
+		)
+		<if test="sname !='' and sname != null ">
+		AND S.S_NAME LIKE '%${sname}%'
+		</if>
+		<if test="smajoy !='' and smajoy != null ">
+		AND S.S_MAJOR LIKE '%${smajoy}%'
+		</if>
+		<if test="sjob !='' and sjob != null ">
+		AND S.S_JOB_TYPE LIKE '%${sjob}%'
+		</if>
+		<if test="scity !='' and scity != null ">
+		AND S.S_JOB_CITY LIKE '%${scity}%'
+		</if>
+		<if test="smoney !='' and smoney != null ">
+		AND S.S_MONEY LIKE '%${smoney}%'
+		</if>
+	</select>
+	
+	
+	<select id="findComByVo" resultMap="ComEntity">
+		SELECT
+			<include refid="ComColumns" />
+			FROM XAWL_COM C WHERE C.C_DELFLAG = '0' AND 
+			C.U_ID IN (SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1' ) 
+		<if test="cname !='' and cname != null ">
+		AND C.C_NAME LIKE '%${cname}%'
+		</if>
+		<if test="caddress !='' and caddress != null ">
+		AND C.C_ADDRESS LIKE '%${caddress}%'
+		</if>
+		<if test="mainBussiness !='' and mainBussiness != null ">
+		AND C.C_MAIN_BUSSINESS LIKE '%${mainBussiness}%'
+		</if>
+		ORDER BY C_CREATETIME DESC
+	</select>
+	
+
+	<select id="findAllApprove" resultMap="UserEntity">
+		SELECT
+		<include refid="UserColumns" />
+		FROM XAWL_USER U WHERE U.U_DELFLAG = '0' AND U.U_STATUS = '0'
+	</select>
+
+	<select id="findAllStu" resultMap="StuEntity">
+		SELECT
+		<include refid="StuColumns" />
+		FROM XAWL_STU S WHERE S.S_DELFLAG = '0'
+	</select>
+	
+	<select id="findAllCom" resultMap="ComEntity">
+		SELECT
+		<include refid="ComColumns" />
+		FROM XAWL_COM C WHERE C.C_DELFLAG = '0'
+	</select>
+
+	<select id="findTopStu" resultMap="StuEntity">
+		SELECT * FROM (
+			SELECT
+			<include refid="StuColumns" />
+			FROM XAWL_STU S WHERE S.S_DELFLAG = '0' AND 
+				S.U_ID IN ( SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1' ) ORDER BY S_CREATETIME DESC
+		) WHERE ROWNUM &lt;= 4
+	</select>
+	
+	<select id="findTopCom" resultMap="ComEntity">
+		SELECT * FROM (
+			SELECT
+			<include refid="ComColumns" />
+			FROM XAWL_COM C WHERE C.C_DELFLAG = '0' AND 
+				C.U_ID IN (SELECT U.ID FROM XAWL_USER U WHERE U .U_STATUS = '1' ) ORDER BY C_CREATETIME DESC
+		) WHERE ROWNUM &lt;= 4
+	</select>
+
+
+
+	<insert id="addUser">
+		INSERT INTO XAWL_USER(
+		ID ,
+		U_ACCOUNT ,
+		U_PASSWORD ,
+		U_PHONE ,
+		U_EMAIL ,
+		U_TYPE ,
+		U_CREATETIME ,
+		U_DELFLAG ,
+		U_STATUS 
+		) VALUES (
+		#{id},
+		#{account},
+		#{password},
+		#{phone,jdbcType=VARCHAR},
+		#{email,jdbcType=VARCHAR},
+		#{type},
+		#{createTime},
+		#{delFlag},
+		#{status}
+		)
+	</insert>
+	
+	<update id="changePassword">
+		UPDATE XAWL_USER SET U_PASSWORD = #{2} WHERE ID = #{0} AND U_PASSWORD = #{1}
+	</update>
+	
+	<update id="rebuildPassword">
+		UPDATE XAWL_USER SET U_PASSWORD = #{1} WHERE ID = #{0}
+	</update>
+	
+	
+	
+	
+	<update id="startUser">
+		UPDATE XAWL_USER SET U_STATUS = '1' WHERE ID = #{0}
+	</update>
+	
+	<update id="stopUser">
+		UPDATE XAWL_USER SET U_STATUS = '2' WHERE ID = #{0}
+	</update>
+	
+	<!--修改用户表 -->
+	<update id="modifyUser">
+		UPDATE XAWL_USER SET
+		U_PHONE = #{phone,jdbcType=VARCHAR},
+		U_EMAIL = #{email,jdbcType=VARCHAR}
+		WHERE ID = #{id}
+	</update>
+	
+	<update id="modifyStudent">
+		UPDATE XAWL_STU SET
+		S_BIRTHDAY = #{birthday,jdbcType=DATE},
+		S_MAJOR = #{majoy},
+		S_LEVEL = #{level},
+		S_STATUS = #{status},
+		S_JOB_CITY = #{city},
+		S_JOB_TYPE = #{job},
+		S_MONEY = #{smoney}
+		WHERE U_ID = #{userId}
+	</update>
+	
+	<update id="modifyCom">
+		UPDATE XAWL_COM SET
+		C_PERSON = #{person},
+		C_PERSON_ID = #{personId},
+		C_MONEY = #{cmoney},
+		C_ADDRESS = #{address},
+		C_BANK_ADDRESS = #{bankAddress},
+		C_BANK_ACCOUNT = #{bankAcoount},
+		C_COM_NUM = #{comNum},
+		C_COM_DATE = #{comDate},
+		C_MAIN_BUSSINESS = #{mainBussiness}
+		WHERE U_ID = #{userId}
+	</update>
+	
+	<!--删除用户表 -->
+	<update id="delUser">
+		UPDATE XAWL_USER SET
+		U_DELFLAG = '1'
+		WHERE ID = #{0}
+	</update>
+
+	<update id="addAvatar">
+		UPDATE XAWL_USER SET
+		U_AVATAR = #{1}
+		WHERE ID = #{0}
+	</update>
+
+
+	<insert id="addStudent">
+		INSERT INTO XAWL_STU(
+		ID ,
+		U_ID ,
+		S_NAME ,
+		S_SEX ,
+		S_BIRTHDAY ,
+		S_PERSON_ID ,
+		S_MAJOR ,
+		S_LEVEL ,
+		S_STATUS ,
+		S_JOB_CITY ,
+		S_JOB_TYPE ,
+		S_MONEY ,
+		S_IMG_URL ,
+		S_CREATETIME ,
+		S_DELFLAG
+		) VALUES (
+		#{id},
+		#{userId},
+		#{sname},
+		#{sex},
+		#{birthday,jdbcType=DATE},
+		#{studentId},
+		#{majoy},
+		#{level},
+		#{status},
+		#{city},
+		#{job},
+		#{smoney},
+		#{simgUrl},
+		#{createTime},
+		#{delFlag}
+		)
+	</insert>
+
+	<select id="findStudent" resultMap="StuEntity">
+		SELECT
+		<include refid="StuColumns" />
+		FROM XAWL_STU S WHERE S.S_DELFLAG = '0' AND S.U_ID = #{0}
+	</select>
+	
+	<select id="findStudentById" resultMap="StuEntity">
+		SELECT
+		<include refid="StuColumns" />
+		FROM XAWL_STU S WHERE S.S_DELFLAG = '0' AND S.ID = #{0}
+	</select>
+	
+
+	<update id="delStudent">
+		UPDATE XAWL_STU SET
+		S_DELFLAG = '1'
+		WHERE U_ID = #{0}
+	</update>
+
+	<insert id="addComPany">
+		INSERT INTO XAWL_COM(
+		ID ,
+		U_ID ,
+		C_NAME , 
+		C_PERSON , 
+		C_PERSON_ID ,
+		C_MONEY ,
+		C_ADDRESS ,
+		C_BANK_ADDRESS ,
+		C_BANK_ACCOUNT ,
+		C_COM_NUM ,
+		C_COM_DATE ,
+		C_IMG_URL ,
+		C_CREATETIME ,
+		C_DELFLAG ,
+		C_MAIN_BUSSINESS
+		) VALUES (
+		#{id},
+		#{userId},
+		#{cname},
+		#{person},
+		#{personId},
+		#{cmoney},
+		#{address},
+		#{bankAddress},
+		#{bankAcoount},
+		#{comNum},
+		#{comDate},
+		#{cimgUrl},
+		#{createTime},
+		#{delFlag},
+		#{mainBussiness}
+		)
+	</insert>
+	
+	<select id="findComPany" resultMap="ComEntity">
+		SELECT
+		<include refid="ComColumns" />
+		FROM XAWL_COM C WHERE C.C_DELFLAG = '0' AND C.U_ID = #{0}
+	</select>
+	
+	<select id="findComPanyById" resultMap="ComEntity">
+		SELECT
+		<include refid="ComColumns" />
+		FROM XAWL_COM C WHERE C.C_DELFLAG = '0' AND C.ID = #{0}
+	</select>
+	
+	<update id="delComPany">
+		UPDATE XAWL_COM SET
+		C_DELFLAG = '1'
+		WHERE U_ID = #{0}
+	</update>
+
+	<resultMap type="com.theChosenOne.User.Entity.UserEntity" id="UserEntity">
+		<id column="ID" property="id" />
+		<result column="U_ACCOUNT" property="account" />
+		<result column="U_PASSWORD" property="password" />
+		<result column="U_PHONE" property="phone" />
+		<result column="U_EMAIL" property="email" />
+		<result column="U_TYPE" property="type" />
+		<result column="U_CREATETIME" property="createTime" />
+		<result column="U_DELFLAG" property="delFlag" />
+		<result column="U_STATUS" property="status" />
+		<result column="U_AVATAR" property="avatar" />
+	</resultMap>
+	
+	
+	<resultMap type="com.theChosenOne.User.Entity.StudentEntity" id="StuEntity">
+		<id column="ID" property="id" />
+		<result column="U_ID" property="userId" />
+		<result column="S_NAME" property="sname" />
+		<result column="S_SEX" property="sex" />
+		<result column="S_BIRTHDAY" property="birthday" />
+		<result column="S_PERSON_ID" property="studentId" />
+		<result column="S_MAJOR" property="majoy" />
+		<result column="S_LEVEL" property="level" />
+		<result column="S_STATUS" property="status" />
+		<result column="S_JOB_CITY" property="city" />
+		<result column="S_JOB_TYPE" property="job" />
+		<result column="S_MONEY" property="smoney" />
+		<result column="S_IMG_URL" property="simgUrl" />
+		<result column="S_CREATETIME" property="createTime" />
+		<result column="S_DELFLAG" property="delFlag" />
+	</resultMap>
+	
+	
+	<resultMap type="com.theChosenOne.User.Entity.ComEntity" id="ComEntity">
+		<id column="ID" property="id" />
+		<result column="U_ID" property="userId" />
+		<result column="C_NAME" property="cname" />
+		<result column="C_PERSON" property="person" />
+		<result column="C_PERSON_ID" property="personId" />
+		<result column="C_MONEY" property="cmoney" />
+		<result column="C_ADDRESS" property="address" />
+		<result column="C_BANK_ADDRESS" property="bankAddress" />
+		<result column="C_BANK_ACCOUNT" property="bankAcoount" />
+		<result column="C_COM_NUM" property="comNum" />
+		<result column="C_COM_DATE" property="comDate" />
+		<result column="C_IMG_URL" property="cimgUrl" />
+		<result column="C_CREATETIME" property="createTime" />
+		<result column="C_DELFLAG" property="delFlag" />
+		<result column="C_MAIN_BUSSINESS" property="mainBussiness" />
+	</resultMap>
+</mapper>
